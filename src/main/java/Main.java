@@ -22,6 +22,7 @@ public class Main {
                     }
                 });
                 from("timer:foo").setBody(constant("wao")).to("websocket://0.0.0.0:5000/?sendToAll=true");
+                from(("websocket://0.0.0.0:5000/?sendToAll=true")).log("foo?showBody=true");
                 from("timer:foo?period=3s").process(new Processor() {
 
                     public void process(Exchange exchange) throws Exception {
