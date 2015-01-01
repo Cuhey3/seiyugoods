@@ -3,7 +3,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 
-public class App {
+public class Main {
 
     static String wao = "wao";
 
