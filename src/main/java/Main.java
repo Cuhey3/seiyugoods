@@ -1,4 +1,5 @@
 
+import java.util.Map.Entry;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
@@ -18,22 +19,20 @@ public class Main {
                 from("jetty:http://0.0.0.0:" + env).process(new Processor() {
 
                     public void process(Exchange exchange) throws Exception {
-                        exchange.getIn().setBody(wao);
+                        StringBuilder sb = new StringBuilder();
+                        for(Entry<String,String> entry : System.getenv().entrySet()){
+                            sb.append(entry.getKey()).append("_____").append(entry.getValue()).append("=====");
+                        }
+                        exchange.getIn().setBody(new String(sb));
                     }
                 });
-                from("timer:foo").setBody(constant("wao")).to("websocket://0.0.0.0/page/?sendToAll=true");
-                from("timer:foo?period=3s").process(new Processor() {
-
-                    public void process(Exchange exchange) throws Exception {
-                        wao += "o\n";
-                    }
-                });
-                from("jetty:http://0.0.0.0:" + env + "/websocket").process(new Processor() {
+//                from("timer:foo").setBody(constant("wao")).to("websocket://0.0.0.0/page/?sendToAll=true");
+/*                from("jetty:http://0.0.0.0:" + env + "/websocket").process(new Processor() {
 
                     public void process(Exchange exchange) throws Exception {
                         exchange.getIn().setBody("<script>  var ws = new WebSocket('ws://limitless-ocean-7504.herokuapp.com/page/'); ws.onopen =function(){ console.log('wao');} </script>");
                     }
-                });
+                });*/
             }
         });
         main.run();
