@@ -21,7 +21,7 @@ public class Main {
                         exchange.getIn().setBody(wao);
                     }
                 });
-                from("timer:foo").setBody(constant("wao")).to("websocket://0.0.0.0:" + env + "/page/?sendToAll=true");
+                from("timer:foo").setBody(constant("wao")).to("websocket://0.0.0.0:25255/page/?sendToAll=true");
                 from("timer:foo?period=3s").process(new Processor() {
 
                     public void process(Exchange exchange) throws Exception {
@@ -31,7 +31,7 @@ public class Main {
                 from("jetty:http://0.0.0.0:" + env + "/websocket").process(new Processor() {
 
                     public void process(Exchange exchange) throws Exception {
-                        exchange.getIn().setBody("<script>  var ws = new WebSocket('ws://limitless-ocean-7504.herokuapp.com:" + env + "/page/'); ws.onopen =function(){ console.log('wao');} </script>");
+                        exchange.getIn().setBody("<script>  var ws = new WebSocket('ws://limitless-ocean-7504.herokuapp.com:25255/page/'); ws.onopen =function(){ console.log('wao');} </script>");
                     }
                 });
             }
