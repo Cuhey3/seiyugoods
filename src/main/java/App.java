@@ -31,7 +31,7 @@ public class App {
                 from("jetty:http://0.0.0.0:" + env + "/websocket").process(new Processor() {
 
                     public void process(Exchange exchange) throws Exception {
-                        exchange.getIn().setBody("<script>  var ws = new WebSocket('ws://localhost:5000/'); ws.onopen =function(){ console.log('wao');} </script>");
+                        exchange.getIn().setBody("<script>  var ws = new WebSocket('ws://0.0.0.0:5000/'); ws.onopen =function(){ console.log('wao');} </script>");
                     }
                 });
             }
