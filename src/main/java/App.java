@@ -21,7 +21,7 @@ public class App {
                         exchange.getIn().setBody(wao);
                     }
                 });
-                from("timer:foo").setBody(constant("wao")).to("websocket://0.0.0.0:5000/?sendToAll=true");
+//                from("timer:foo").setBody(constant("wao")).to("websocket://0.0.0.0:5000/?sendToAll=true");
                 from("timer:foo?period=3s").process(new Processor() {
 
                     public void process(Exchange exchange) throws Exception {
