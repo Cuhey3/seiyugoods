@@ -1,0 +1,10 @@
+<script>
+
+    var ws = new WebSocket("ws://limitless-ocean-7504.herokuapp.com/page/");
+    ws.onopen = function() {
+        console.log("wao");
+    };
+    ws.onmessage = function(data) {
+        console.log(data);
+    };
+</script>
