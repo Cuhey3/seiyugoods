@@ -209,7 +209,7 @@ public class Main {
                                 + "            </div>\n"
                                 + "            <div class='modal-body'>\n"
                                 + "            <table class='table'>\n"
-                                + "            <thead><tr><th>日次</th><th>イベント名</th><th>場所</th><th>出演者</th></tr></thead>\n"
+                                + "            <thead><tr><th>日時</th><th>イベント名</th><th>場所</th><th>出演者</th></tr></thead>\n"
                                 + "            <tbody>\n"
                                 + "            <tr ng-repeat='id in seiyu.eventids'>\n"
                                 + "            <td class='date'>{{events[id].a}}</td>\n"
