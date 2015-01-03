@@ -116,7 +116,7 @@ public class Main {
                                     LinkedHashMap<String, Object> map = new LinkedHashMap<>();
                                     map.put("name", name);
                                     map.put("eventids", female_seiyus.get(name));
-                                    map.put("count", getUniqueSize(female_seiyus.get(name)));
+                                    map.put("count", getUniqueSize(events, female_seiyus.get(name)));
                                     map.put("count2", female_seiyus.get(name).size());
                                     female.add(map);
                                 }
@@ -125,7 +125,7 @@ public class Main {
                                     LinkedHashMap<String, Object> map = new LinkedHashMap<>();
                                     map.put("name", name);
                                     map.put("eventids", male_seiyus.get(name));
-                                    map.put("count", getUniqueSize(male_seiyus.get(name)));
+                                    map.put("count", getUniqueSize(events, male_seiyus.get(name)));
                                     map.put("count2", male_seiyus.get(name).size());
                                     male.add(map);
                                 }
@@ -386,12 +386,17 @@ public class Main {
         return new String(sb).replaceFirst("\\|$", ")");
     }
 
-    public static int getUniqueSize(Set<String> set) {
+    public static int getUniqueSize(TreeMap<String, LinkedHashMap<String, String>> events, Set<String> set) {
         LinkedHashSet<String> newSet = new LinkedHashSet<>();
+        LinkedHashSet<String> titles = new LinkedHashSet<>();
+        int count = 0;
         for (String s : set) {
-            s = s.replaceFirst("^\\d+(.+?)\\d+$", "$1");
-            newSet.add(s);
+            String title = events.get(s).get("b");
+            s = s.replaceFirst("\\d+$", "");
+            if(newSet.add(s) & titles.add(title)){
+                count++;
+            }
         }
-        return newSet.size();
+        return count;
     }
 }
