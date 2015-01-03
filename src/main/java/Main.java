@@ -38,7 +38,7 @@ public class Main {
                         exchange.getOut().setBody(json);
                     }
                 });
-                from("timer:foo?period=10s")
+                from("timer:foo?period=5m")
                         .process(new Processor() {
 
                             @Override
