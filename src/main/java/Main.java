@@ -151,7 +151,7 @@ public class Main {
                                 + "        <style>\n"
                                 + "            .app-modal-window .modal-dialog{width:1000px;}\n"
                                 + "            .no{width:40px;text-align:center;}\n"
-                                + "            .name{cursor:pointer;width:90px;}\n"
+                                + "            .name{cursor:pointer;width:70px;}\n"
                                 + "            .count{width:40px;text-align:center;}\n"
                                 + "            .ev{width:600px;}\n"
                                 + "            .name:hover{color:blue;font-weight:bold;}\n"
@@ -205,7 +205,7 @@ public class Main {
                                 + "            </style>\n"
                                 + "            <div class='modal-header'>\n"
                                 + "            <h3 class='modal-title'><a href='http://ja.wikipedia.org/wiki/{{seiyu.name}}' target='_blank'>{{seiyu.name}}</a></h3>\n"
-                                + "            {{seiyu.count}}会場 {{seiyu.count2}}ステージ\n"
+                                + "            {{seiyu.count}}イベント {{seiyu.count2}}ステージ\n"
                                 + "            </div>\n"
                                 + "            <div class='modal-body'>\n"
                                 + "            <table class='table'>\n"
@@ -232,15 +232,17 @@ public class Main {
                                 + "                    <tr>\n"
                                 + "                        <th>No</th>\n"
                                 + "                        <th>氏名</th>\n"
-                                + "                        <th>件数</th>\n"
+                                + "                        <th>件数1</th>\n"
+                                + "                        <th>件数2</th>\n"
                                 + "                        <th class='ev'>直近のイベント</th>\n"
                                 + "                    </tr>\n"
                                 + "                </thead>\n"
                                 + "                <tbody>\n"
-                                + "                    <tr ng-repeat=\"seiyu in now|orderBy:['-count', sort]\">\n"
+                                + "                    <tr ng-repeat=\"seiyu in now|orderBy:['-count','-count2', sort]\">\n"
                                 + "                        <td class='no'>{{$index + 1}}</td>\n"
                                 + "                        <td ng-click='modalOpen(seiyu)' class='name'>{{seiyu.name}}</td>\n"
                                 + "                        <td class='count'>{{seiyu.count}}</td>\n"
+                                + "                        <td class='count'>{{seiyu.count2}}</td>\n"
                                 + "                        <td class='ev'><a href='http://www.koepota.jp/eventschedule/{{seiyu.eventids[0].substr(0, 4)}}/{{seiyu.eventids[0].substr(4, 2)}}/{{seiyu.eventids[0].substr(6, 2)}}/{{seiyu.eventids[0]}}.html' target='_blank'>{{events[seiyu.eventids[0]].b}}</a></td>\n"
                                 + "                    </tr>\n"
                                 + "                </tbody>\n"
@@ -387,7 +389,7 @@ public class Main {
     public static int getUniqueSize(Set<String> set) {
         LinkedHashSet<String> newSet = new LinkedHashSet<>();
         for (String s : set) {
-            s = s.replaceFirst("\\d+$", "");
+            s = s.replaceFirst("^\\d+(.+?)\\d+$", "$1");
             newSet.add(s);
         }
         return newSet.size();
