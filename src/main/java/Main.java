@@ -22,7 +22,8 @@ public class Main {
 
     public static String regex = null;
     public static String regex2 = null;
-    public static String json = "<script>document.write('now loading...');setTimeout(function(){document.location.reload();},5000)</script>";
+    public static String html = "<script>document.write('now loading...');setTimeout(function(){document.location.reload();},5000)</script>";
+    public static String json = "{{}}";
 
     public static void main(String[] args) throws Exception {
         org.apache.camel.main.Main main = new org.apache.camel.main.Main();
@@ -36,7 +37,7 @@ public class Main {
 
                     @Override
                     public void process(Exchange exchange) throws Exception {
-                        exchange.getOut().setBody(json);
+                        exchange.getOut().setBody(html);
                     }
                 });
                 from("timer:foo?period=5m")
@@ -67,7 +68,7 @@ public class Main {
                                 TreeMap<String, TreeSet<String>> female_seiyus = new TreeMap<>();
                                 TreeMap<String, TreeSet<String>> male_seiyus = new TreeMap<>();
                                 TreeMap<String, LinkedHashMap<String, String>> events = new TreeMap<>();
-                                TreeSet<String> eventIds = new TreeSet<>();
+                                TreeMap<String, Object> eventIds = new TreeMap<>();
                                 String body = exchange.getIn().getBody(String.class);
                                 Document doc = Jsoup.parse(body);
                                 Element table = doc.select("#eventschedule").first();
@@ -77,29 +78,29 @@ public class Main {
                                         Matcher m = p.matcher(tr.select("td:eq(3)").text());
                                         Matcher m2 = p2.matcher(tr.select("td:eq(3)").text());
                                         String eventId = tr.select("td:eq(1) a").attr("href").replaceAll("http://www.koepota.jp/eventschedule/.+/(.+)\\.html", "$1");
-                                        boolean flag = false;
+                                        LinkedHashMap<String, Integer> eidMap = new LinkedHashMap<>();
                                         while (m.find()) {
                                             String seiyu = m.group(0);
+                                            eidMap.put(seiyu, 1);
                                             TreeSet<String> set = female_seiyus.get(seiyu);
                                             if (set == null) {
                                                 set = new TreeSet<>();
                                             }
                                             set.add(eventId);
                                             female_seiyus.put(seiyu, set);
-                                            flag = true;
                                         }
                                         while (m2.find()) {
                                             String seiyu = m2.group(0);
+                                            eidMap.put(seiyu, 1);
                                             TreeSet<String> set = male_seiyus.get(seiyu);
                                             if (set == null) {
                                                 set = new TreeSet<>();
                                             }
                                             set.add(eventId);
                                             male_seiyus.put(seiyu, set);
-                                            flag = true;
                                         }
-                                        if (flag) {
-                                            eventIds.add(eventId);
+                                        if (!eidMap.isEmpty()) {
+                                            eventIds.put(eventId, eidMap);
                                             LinkedHashMap<String, String> event = new LinkedHashMap<>();
                                             event.put("a", tr.select("td:eq(0)").text());
                                             event.put("b", tr.select("td:eq(1)").text());
@@ -139,7 +140,8 @@ public class Main {
 
                             @Override
                             public void process(Exchange exchange) throws Exception {
-                                json = "<!DOCTYPE html>\n"
+                                json = exchange.getIn().getBody(String.class);
+                                html = "<!DOCTYPE html>\n"
                                 + "<html lang='ja' ng-app='MyApp' id='my'>\n"
                                 + "    <head>\n"
                                 + "        <meta charset='utf-8'>\n"
@@ -155,19 +157,22 @@ public class Main {
                                 + "            .count{width:40px;text-align:center;}\n"
                                 + "            .ev{width:600px;}\n"
                                 + "            .name:hover{color:blue;font-weight:bold;}\n"
+                                + "            .newEvent{color:red;}\n"
                                 + "        </style>\n"
                                 + "        <script src='http://code.jquery.com/jquery-1.11.0.min.js'></script>\n"
                                 + "        <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js'></script>\n"
                                 + "        <script src='http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js'></script>\n"
                                 + "        <script src='https://code.jquery.com/jquery-2.1.1.min.js'></script>\n"
-                                + "        <script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>\n"
-                                + "        <script src='seiyu.js'></script>\n"
+                                + "        <script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>"
                                 + "        <script>"
-                                + "	var seiyu_obj=" + exchange.getIn().getBody(String.class) + ";            angular.module('MyApp', ['ui.bootstrap'])\n"
+                                + "	var seiyu_obj=" + json + ";                        angular.module('MyApp', ['ui.bootstrap'])\n"
                                 + "                    .controller('MyController', ['$scope', '$modal', function($scope, $modal) {\n"
+                                + "                            if (window.localStorage && window.localStorage.getItem('saveState')) {\n"
+                                + "                                $scope.old_state = JSON.parse(window.localStorage.getItem('saveState'));\n"
+                                + "                            }\n"
                                 + "                            $scope.now = seiyu_obj.female_seiyu;\n"
                                 + "                            $scope.gender = 'female';\n"
-                                + "                            $scope.eventIds = seiyu_obj.eventIds;\n"
+                                + "                            $scope.new_state = seiyu_obj.eventids;\n"
                                 + "                            $scope.events = seiyu_obj.event;\n"
                                 + "                            $scope.sort = function(a) {\n"
                                 + "                                return -a.count;\n"
@@ -182,14 +187,49 @@ public class Main {
                                 + "                                    scope: $scope, windowClass: 'app-modal-window'\n"
                                 + "                                });\n"
                                 + "                            };\n"
-                                + "                            $scope.changeGender = function(){\n"
-                                + "                                if($scope.gender === 'female'){\n"
+                                + "                            $scope.changeGender = function() {\n"
+                                + "                                if ($scope.gender === 'female') {\n"
                                 + "                                    $scope.now = seiyu_obj.male_seiyu;\n"
                                 + "                                    $scope.gender = 'male';\n"
-                                + "                                }else{\n"
+                                + "                                } else {\n"
                                 + "                                    $scope.now = seiyu_obj.female_seiyu;\n"
                                 + "                                    $scope.gender = 'female';\n"
-                                + "                                   \n"
+                                + "\n"
+                                + "                                }\n"
+                                + "                            };\n"
+                                + "                            $scope.saveState = function() {\n"
+                                + "                                if (window.localStorage) {\n"
+                                + "                                    var s = window.localStorage.getItem('saveState');\n"
+                                + "                                    if (s) {\n"
+                                + "                                        if (confirm('現在の新着表示がクリアされます。よろしいですか？')) {\n"
+                                + "                                            window.localStorage.setItem('saveState', JSON.stringify($scope.new_state));\n"
+                                + "                                            $scope.old_state = $scope.new_state;\n"
+                                + "                                            alert('記憶しました。');\n"
+                                + "                                        }\n"
+                                + "                                    } else {\n"
+                                + "                                        if (confirm('ブラウザに状態を記憶することで、次回更新時、新着イベントを強調表示できます。')) {\n"
+                                + "                                            window.localStorage.setItem('saveState', JSON.stringify($scope.new_state));\n"
+                                + "                                            alert('記憶しました。');\n"
+                                + "                                        }\n"
+                                + "                                    }\n"
+                                + "                                } else {\n"
+                                + "                                    alert('ブラウザが対応していません。');\n"
+                                + "                                }\n"
+                                + "                            };\n"
+                                + "                            $scope.newEvent = function(seiyu) {\n"
+                                + "                                for (var i = 0; i < seiyu.eventids.length; i++) {\n"
+                                + "                                    if ($scope.old_state[seiyu.eventids[i]] && $scope.old_state[seiyu.eventids[i]][seiyu.name]) {\n"
+                                + "                                    } else {\n"
+                                + "                                        return true;\n"
+                                + "                                    }\n"
+                                + "                                }\n"
+                                + "                                return false;\n"
+                                + "                            };\n"
+                                + "                            $scope.newEvent2 = function(name,id) {\n"
+                                + "                                if($scope.old_state[id] && $scope.old_state[id][name]){\n"
+                                + "                                    return false;\n"
+                                + "                                }else{\n"
+                                + "                                    return true;\n"
                                 + "                                }\n"
                                 + "                            };\n"
                                 + "                        }]);\n"
@@ -202,6 +242,7 @@ public class Main {
                                 + "            .evname{width:380px;}\n"
                                 + "            .place{width:120px;}\n"
                                 + "            .member{width:220px;}\n"
+                                + "            .newEvent{color:red;}\n"
                                 + "            </style>\n"
                                 + "            <div class='modal-header'>\n"
                                 + "            <h3 class='modal-title'><a href='http://ja.wikipedia.org/wiki/{{seiyu.name}}' target='_blank'>{{seiyu.name}}</a></h3>\n"
@@ -211,22 +252,22 @@ public class Main {
                                 + "            <table class='table'>\n"
                                 + "            <thead><tr><th>日時</th><th>イベント名</th><th>場所</th><th>出演者</th></tr></thead>\n"
                                 + "            <tbody>\n"
-                                + "            <tr ng-repeat='id in seiyu.eventids'>\n"
+                                + "            <tr ng-repeat='id in seiyu.eventids' ng-class='{newEvent:newEvent2(seiyu.name,id)}'>\n"
                                 + "            <td class='date'>{{events[id].a}}</td>\n"
                                 + "            <td class='evname'><a href='http://www.koepota.jp/eventschedule/{{id.substr(0, 4)}}/{{id.substr(4, 2)}}/{{id.substr(6, 2)}}/{{id}}.html' target='_blank'>{{events[id].b}}</a></td>\n"
                                 + "            <td class='place'>{{events[id].c}}</td>\n"
                                 + "            <td class='member'>{{events[id].d}}</td>\n"
                                 + "            </tr>\n"
-                                + "    </tbody>\n"
+                                + "            </tbody>\n"
                                 + "            </table>\n"
-                                + "    </div>\n"
-                                + "    <div class='modal-footer'></div>\n"
+                                + "            </div>\n"
+                                + "            <div class='modal-footer'></div>\n"
                                 + "            </body>\n"
                                 + "        </script>\n"
                                 + "\n"
                                 + "    <body ng-controller='MyController'>\n"
                                 + "        <div class='container'>\n"
-                                + "            <h2 style='float:left;'>こえぽたイベントスケジュールブラウザ</h2><div style='float:right;padding-top:20px;'><input type='button' ng-click='changeGender();' value='性別を切り替え'></div> <div style='clear:both;'><a href='http://www.koepota.jp/eventschedule/'>本家</a></div>\n"
+                                + "            <h2 style='float:left;'>こえぽたイベントスケジュールブラウザ</h2><div style='float:right;padding-top:20px;'><input type='button' ng-click='changeGender();' value='性別を切り替え' /> <input type='button' value='ブラウザに記憶' ng-click='saveState();'/></div> <div style='clear:both;'><a href='http://www.koepota.jp/eventschedule/'>本家</a></div>\n"
                                 + "            <table class='table table-hover'>\n"
                                 + "                <thead>\n"
                                 + "                    <tr>\n"
@@ -238,7 +279,7 @@ public class Main {
                                 + "                    </tr>\n"
                                 + "                </thead>\n"
                                 + "                <tbody>\n"
-                                + "                    <tr ng-repeat=\"seiyu in now|orderBy:['-count','-count2', sort]\">\n"
+                                + "                    <tr ng-repeat=\"seiyu in now|orderBy:['-count', '-count2', sort]\" ng-class='{newEvent:newEvent(seiyu)}'>\n"
                                 + "                        <td class='no'>{{$index + 1}}</td>\n"
                                 + "                        <td ng-click='modalOpen(seiyu)' class='name'>{{seiyu.name}}</td>\n"
                                 + "                        <td class='count'>{{seiyu.count}}</td>\n"
@@ -252,6 +293,12 @@ public class Main {
                                 + "</html>";
                             }
                         });
+                from("jetty:http://0.0.0.0:" + env + "/json").process(new Processor() {
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
+                        exchange.getIn().setBody(json);
+                    }
+                });
                 from("timer:foo?period=24h").process(new Processor() {
 
                     @Override
@@ -393,7 +440,7 @@ public class Main {
         for (String s : set) {
             String title = events.get(s).get("b");
             s = s.replaceFirst("\\d+$", "");
-            if(newSet.add(s) & titles.add(title)){
+            if (newSet.add(s) & titles.add(title)) {
                 count++;
             }
         }
