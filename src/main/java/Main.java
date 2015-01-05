@@ -163,6 +163,7 @@ public class Main {
                             public void process(Exchange exchange) throws Exception {
                                 json = exchange.getIn().getBody(String.class);
                                 exchange.getIn().setBody("var seiyu_obj=" + json);
+                                resource.put("seiyu.js", "var seiyu_obj=" + json);
                             }
                         }).setHeader(Exchange.FILE_NAME, constant("seiyu.js")).to("file:resource");
                 from("jetty:http://0.0.0.0:" + env + "/json").process(new Processor() {
