@@ -24,6 +24,7 @@ public class Main {
     public static String regex2 = null;
     public static String html = "<script>document.write('now loading...');setTimeout(function(){document.location.reload();},5000)</script>";
     public static String json = "{{}}";
+    public static String test = "{{}}";
 
     public static void main(String[] args) throws Exception {
         org.apache.camel.main.Main main = new org.apache.camel.main.Main();
@@ -310,6 +311,19 @@ public class Main {
                                 + "</html>";
                             }
                         });
+                from("file:inbox?noop=true").process(new Processor(){
+
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
+                        test = exchange.getIn().getBody(String.class);
+                    }
+                });
+                from("jetty:http://0.0.0.0:" + env + "/test").process(new Processor() {
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
+                        exchange.getIn().setBody(test);
+                    }
+                });
                 from("jetty:http://0.0.0.0:" + env + "/json").process(new Processor() {
                     @Override
                     public void process(Exchange exchange) throws Exception {

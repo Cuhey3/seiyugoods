@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang='ja' ng-app='MyApp' id='my'>
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title>こえぽたブラウザ</title>
+        <meta name='description' content=''>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
+        <style>
+            .app-modal-window .modal-dialog{width:1000px;}
+            .no{width:40px;text-align:center;}
+            .name{cursor:pointer;width:70px;}
+            .count{width:40px;text-align:center;}
+            .ev{width:600px;}
+            .name:hover{color:blue;font-weight:bold;}
+            .newEvent{color:red;}
+        </style>
+        <script src='http://code.jquery.com/jquery-1.11.0.min.js'></script>
+        <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js'></script>
+        <script src='http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js'></script>
+        <script src='https://code.jquery.com/jquery-2.1.1.min.js'></script>
+        <script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
+        <script src='seiyu.js'></script>
+        <script>
+            angular.module('MyApp', ['ui.bootstrap'])
+                    .controller('MyController', ['$scope', '$modal', function($scope, $modal) {
+                            $scope.new_state = seiyu_obj.eventids;
+                            if (window.localStorage) {
+                                if (!window.localStorage.getItem('saveState')) {
+                                    window.localStorage.setItem('saveState', JSON.stringify($scope.new_state));
+                                }
+                                $scope.old_state = JSON.parse(window.localStorage.getItem('saveState'));
+                            }
+                            $scope.now = seiyu_obj.female_seiyu;
+                            $scope.gender = 'female';
+                            $scope.events = seiyu_obj.event;
+                            $scope.sort = function(a) {
+                                return -a.count;
+                            };
+                            $scope.sort = function(a) {
+                                return $scope.events[a.eventids[0]].b;
+                            };
+                            $scope.modalOpen = function(seiyu) {
+                                $scope.seiyu = seiyu;
+                                $modal.open({
+                                    templateUrl: 'myModal', controller: ModalInstanceCtrl,
+                                    scope: $scope, windowClass: 'app-modal-window'
+                                });
+                            };
+                            $scope.changeGender = function() {
+                                if ($scope.gender === 'female') {
+                                    $scope.now = seiyu_obj.male_seiyu;
+                                    $scope.gender = 'male';
+                                } else {
+                                    $scope.now = seiyu_obj.female_seiyu;
+                                    $scope.gender = 'female';
+
+                                }
+                            };
+                            $scope.saveState = function() {
+                                if (window.localStorage) {
+                                    var s = window.localStorage.getItem('saveState');
+                                    if (s) {
+                                        if (confirm('現在の新着表示がクリアされます。よろしいですか？')) {
+                                            window.localStorage.setItem('saveState', JSON.stringify($scope.new_state));
+                                            $scope.old_state = $scope.new_state;
+                                            alert('記憶しました。');
+                                        }
+                                    } else {
+                                        if (confirm('ブラウザに状態を記憶することで、次回更新時、新着イベントを強調表示できます。')) {
+                                            window.localStorage.setItem('saveState', JSON.stringify($scope.new_state));
+                                            alert('記憶しました。');
+                                        }
+                                    }
+                                } else {
+                                    alert('ブラウザが対応していません。');
+                                }
+                            };
+                            $scope.newEvent = function(seiyu) {
+                                if (!window.localStorage) {
+                                    return false;
+                                }
+                                for (var i = 0; i < seiyu.eventids.length; i++) {
+                                    if ($scope.old_state[seiyu.eventids[i]] && $scope.old_state[seiyu.eventids[i]][seiyu.name]) {
+                                    } else {
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            };
+                            $scope.newEvent2 = function(name, id) {
+                                if (!window.localStorage) {
+                                    return false;
+                                }
+                                if ($scope.old_state[id] && $scope.old_state[id][name]) {
+                                    return false;
+                                } else {
+                                    return true;
+                                }
+                            };
+                            $scope.newEvent3 = function(seiyu) {
+                                if (!window.localStorage) {
+                                    return '1';
+                                }
+                                for (var i = 0; i < seiyu.eventids.length; i++) {
+                                    if ($scope.old_state[seiyu.eventids[i]] && $scope.old_state[seiyu.eventids[i]][seiyu.name]) {
+                                    } else {
+                                        return '0';
+                                    }
+                                }
+                                return '1';
+                            };
+                        }]);
+            var ModalInstanceCtrl = function($scope, $modalInstance) {
+            };
+        </script>
+        <script  type='text/ng-template' id='myModal'>
+            <style>
+            .date{width:80px;}
+            .evname{width:380px;}
+            .place{width:120px;}
+            .member{width:220px;}
+            .newEvent{color:red;}
+            </style>
+            <div class='modal-header'>
+            <h3 class='modal-title'><a href='http://ja.wikipedia.org/wiki/{{seiyu.name}}' target='_blank'>{{seiyu.name}}</a></h3>
+            {{seiyu.count}}イベント {{seiyu.count2}}ステージ
+            </div>
+            <div class='modal-body'>
+            <table class='table'>
+            <thead><tr><th>日時</th><th>イベント名</th><th>場所</th><th>出演者</th></tr></thead>
+            <tbody>
+            <tr ng-repeat='id in seiyu.eventids' ng-class='{newEvent:newEvent2(seiyu.name,id)}'>
+            <td class='date'>{{events[id].a}}</td>
+            <td class='evname'><a href='http://www.koepota.jp/eventschedule/{{id.substr(0, 4)}}/{{id.substr(4, 2)}}/{{id.substr(6, 2)}}/{{id}}.html' target='_blank'>{{events[id].b}}</a></td>
+            <td class='place'>{{events[id].c}}</td>
+            <td class='member'>{{events[id].d}}</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <div class='modal-footer'></div>
+            </body>
+        </script>
+
+    <body ng-controller='MyController'>
+        <div class='container'>
+            <h2 style='float:left;'>こえぽたイベントスケジュールブラウザ</h2><div style='float:right;padding-top:20px;'><input type='button' ng-click='changeGender();' value='性別を切り替え' /> <input type='button' value='ブラウザに記憶' ng-click='saveState();'/></div> <div style='clear:both;'><a href='http://www.koepota.jp/eventschedule/'>本家</a></div>
+            <table class='table table-hover'>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>氏名</th>
+                        <th>件数1</th>
+                        <th>件数2</th>
+                        <th class='ev'>直近のイベント</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="seiyu in now|orderBy:[newEvent3,'-count', '-count2', sort]" ng-class="{newEvent:newEvent(seiyu)}">
+                        <td class='no'>{{$index + 1}}</td>
+                        <td ng-click='modalOpen(seiyu)' class='name'>{{seiyu.name}}</td>
+                        <td class='count'>{{seiyu.count}}</td>
+                        <td class='count'>{{seiyu.count2}}</td>
+                        <td class='ev'><a href='http://www.koepota.jp/eventschedule/{{seiyu.eventids[0].substr(0, 4)}}/{{seiyu.eventids[0].substr(4, 2)}}/{{seiyu.eventids[0].substr(6, 2)}}/{{seiyu.eventids[0]}}.html' target='_blank'>{{events[seiyu.eventids[0]].b}}</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
