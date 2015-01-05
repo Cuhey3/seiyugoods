@@ -25,6 +25,7 @@ public class Main {
     public static String html = "<script>document.write('now loading...');setTimeout(function(){document.location.reload();},5000)</script>";
     public static String json = "{{}}";
     public static String test = "{{}}";
+    public static LinkedHashMap<String, String> resource = new LinkedHashMap<>();
 
     public static void main(String[] args) throws Exception {
         org.apache.camel.main.Main main = new org.apache.camel.main.Main();
@@ -34,14 +35,30 @@ public class Main {
             public void configure() throws Exception {
                 final String env = System.getenv("PORT");
 
+                from("jetty:http://0.0.0.0:" + env + "/resource/?matchOnUriPrefix=true").process(new Processor() {
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
+                        exchange.getIn().setBody(resource.get(exchange.getIn().getHeader("CamelHttpPath", String.class)));
+                    }
+
+                });
+                from("file:resource?noop=true").process(new Processor() {
+
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
+                        String body = exchange.getIn().getBody(String.class);
+                        String fileName = exchange.getIn().getHeader(Exchange.FILE_NAME_ONLY, String.class);
+                        resource.put(fileName, body);
+                    }
+                });
                 from("jetty:http://0.0.0.0:" + env).process(new Processor() {
 
                     @Override
                     public void process(Exchange exchange) throws Exception {
-                        exchange.getOut().setBody(html);
+                        exchange.getOut().setBody(resource.get("voicev.html"));
                     }
                 });
-                from("timer:foo?period=5m")
+                from("timer:foo?period=10m")
                         .process(new Processor() {
 
                             @Override
@@ -142,188 +159,9 @@ public class Main {
                             @Override
                             public void process(Exchange exchange) throws Exception {
                                 json = exchange.getIn().getBody(String.class);
-                                html = "<!DOCTYPE html>\n"
-                                + "<html lang='ja' ng-app='MyApp' id='my'>\n"
-                                + "    <head>\n"
-                                + "        <meta charset='utf-8'>\n"
-                                + "        <meta http-equiv='X-UA-Compatible' content='IE=edge'>\n"
-                                + "        <title>こえぽたブラウザ</title>\n"
-                                + "        <meta name='description' content=''>\n"
-                                + "        <meta name='viewport' content='width=device-width, initial-scale=1'>\n"
-                                + "        <link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>\n"
-                                + "        <style>\n"
-                                + "            .app-modal-window .modal-dialog{width:1000px;}\n"
-                                + "            .no{width:40px;text-align:center;}\n"
-                                + "            .name{cursor:pointer;width:70px;}\n"
-                                + "            .count{width:40px;text-align:center;}\n"
-                                + "            .ev{width:600px;}\n"
-                                + "            .name:hover{color:blue;font-weight:bold;}\n"
-                                + "            .newEvent{color:red;}\n"
-                                + "        </style>\n"
-                                + "        <script src='http://code.jquery.com/jquery-1.11.0.min.js'></script>\n"
-                                + "        <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js'></script>\n"
-                                + "        <script src='http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js'></script>\n"
-                                + "        <script src='https://code.jquery.com/jquery-2.1.1.min.js'></script>\n"
-                                + "        <script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>"
-                                + "        <script>"
-                                + "	var seiyu_obj=" + json + ";                                    angular.module('MyApp', ['ui.bootstrap'])\n"
-                                + "                    .controller('MyController', ['$scope', '$modal', function($scope, $modal) {\n"
-                                + "                            $scope.new_state = seiyu_obj.eventids;\n"
-                                + "                            if (window.localStorage) {\n"
-                                + "                                if (!window.localStorage.getItem('saveState')) {\n"
-                                + "                                    window.localStorage.setItem('saveState', JSON.stringify($scope.new_state));\n"
-                                + "                                }\n"
-                                + "                                $scope.old_state = JSON.parse(window.localStorage.getItem('saveState'));\n"
-                                + "                            }\n"
-                                + "                            $scope.now = seiyu_obj.female_seiyu;\n"
-                                + "                            $scope.gender = 'female';\n"
-                                + "                            $scope.new_state = seiyu_obj.eventids;\n"
-                                + "                            $scope.events = seiyu_obj.event;\n"
-                                + "                            $scope.sort = function(a) {\n"
-                                + "                                return -a.count;\n"
-                                + "                            };\n"
-                                + "                            $scope.sort = function(a) {\n"
-                                + "                                return $scope.events[a.eventids[0]].b;\n"
-                                + "                            };\n"
-                                + "                            $scope.modalOpen = function(seiyu) {\n"
-                                + "                                $scope.seiyu = seiyu;\n"
-                                + "                                $modal.open({\n"
-                                + "                                    templateUrl: 'myModal', controller: ModalInstanceCtrl,\n"
-                                + "                                    scope: $scope, windowClass: 'app-modal-window'\n"
-                                + "                                });\n"
-                                + "                            };\n"
-                                + "                            $scope.changeGender = function() {\n"
-                                + "                                if ($scope.gender === 'female') {\n"
-                                + "                                    $scope.now = seiyu_obj.male_seiyu;\n"
-                                + "                                    $scope.gender = 'male';\n"
-                                + "                                } else {\n"
-                                + "                                    $scope.now = seiyu_obj.female_seiyu;\n"
-                                + "                                    $scope.gender = 'female';\n"
-                                + "\n"
-                                + "                                }\n"
-                                + "                            };\n"
-                                + "                            $scope.saveState = function() {\n"
-                                + "                                if (window.localStorage) {\n"
-                                + "                                    var s = window.localStorage.getItem('saveState');\n"
-                                + "                                    if (s) {\n"
-                                + "                                        if (confirm('現在の新着表示がクリアされます。よろしいですか？')) {\n"
-                                + "                                            window.localStorage.setItem('saveState', JSON.stringify($scope.new_state));\n"
-                                + "                                            $scope.old_state = $scope.new_state;\n"
-                                + "                                        }\n"
-                                + "                                    } else {\n"
-                                + "                                        if (confirm('ブラウザに状態を記憶することで、次回更新時、新着イベントを強調表示できます。')) {\n"
-                                + "                                            window.localStorage.setItem('saveState', JSON.stringify($scope.new_state));\n"
-                                + "                                            alert('記憶しました。');\n"
-                                + "                                        }\n"
-                                + "                                    }\n"
-                                + "                                } else {\n"
-                                + "                                    alert('ブラウザが対応していません。');\n"
-                                + "                                }\n"
-                                + "                            };\n"
-                                + "                            $scope.newEvent = function(seiyu) {\n"
-                                + "if(!window.localStorage){return false;}"
-                                + "                                for (var i = 0; i < seiyu.eventids.length; i++) {\n"
-                                + "                                    if ($scope.old_state[seiyu.eventids[i]] && $scope.old_state[seiyu.eventids[i]][seiyu.name]) {\n"
-                                + "                                    } else {\n"
-                                + "                                        return true;\n"
-                                + "                                    }\n"
-                                + "                                }\n"
-                                + "                                return false;\n"
-                                + "                            };\n"
-                                + "                            $scope.newEvent2 = function(name,id) {\n"
-                                + "if(!window.localStorage){return false;}"
-                                + "                                if($scope.old_state[id] && $scope.old_state[id][name]){\n"
-                                + "                                    return false;\n"
-                                + "                                }else{\n"
-                                + "                                    return true;\n"
-                                + "                                }\n"
-                                + "                            };\n"
-                                + "                            $scope.newEvent3 = function(seiyu) {\n"
-                                + "                                if (!window.localStorage) {\n"
-                                + "                                    return '1';\n"
-                                + "                                }\n"
-                                + "                                for (var i = 0; i < seiyu.eventids.length; i++) {\n"
-                                + "                                    if ($scope.old_state[seiyu.eventids[i]] && $scope.old_state[seiyu.eventids[i]][seiyu.name]) {\n"
-                                + "                                    } else {\n"
-                                + "                                        return '0';\n"
-                                + "                                    }\n"
-                                + "                                }\n"
-                                + "                                return '1';\n"
-                                + "                            };"
-                                + "                        }]);\n"
-                                + "            var ModalInstanceCtrl = function($scope, $modalInstance) {\n"
-                                + "            };\n"
-                                + "        </script>\n"
-                                + "        <script  type='text/ng-template' id='myModal'>\n"
-                                + "            <style>\n"
-                                + "            .date{width:80px;}\n"
-                                + "            .evname{width:380px;}\n"
-                                + "            .place{width:120px;}\n"
-                                + "            .member{width:220px;}\n"
-                                + "            .newEvent{color:red;}\n"
-                                + "            </style>\n"
-                                + "            <div class='modal-header'>\n"
-                                + "            <h3 class='modal-title'><a href='http://ja.wikipedia.org/wiki/{{seiyu.name}}' target='_blank'>{{seiyu.name}}</a></h3>\n"
-                                + "            {{seiyu.count}}イベント {{seiyu.count2}}ステージ\n"
-                                + "            </div>\n"
-                                + "            <div class='modal-body'>\n"
-                                + "            <table class='table'>\n"
-                                + "            <thead><tr><th>日時</th><th>イベント名</th><th>場所</th><th>出演者</th></tr></thead>\n"
-                                + "            <tbody>\n"
-                                + "            <tr ng-repeat='id in seiyu.eventids' ng-class='{newEvent:newEvent2(seiyu.name,id)}'>\n"
-                                + "            <td class='date'>{{events[id].a}}</td>\n"
-                                + "            <td class='evname'><a href='http://www.koepota.jp/eventschedule/{{id.substr(0, 4)}}/{{id.substr(4, 2)}}/{{id.substr(6, 2)}}/{{id}}.html' target='_blank'>{{events[id].b}}</a></td>\n"
-                                + "            <td class='place'>{{events[id].c}}</td>\n"
-                                + "            <td class='member'>{{events[id].d}}</td>\n"
-                                + "            </tr>\n"
-                                + "            </tbody>\n"
-                                + "            </table>\n"
-                                + "            </div>\n"
-                                + "            <div class='modal-footer'></div>\n"
-                                + "            </body>\n"
-                                + "        </script>\n"
-                                + "\n"
-                                + "    <body ng-controller='MyController'>\n"
-                                + "        <div class='container'>\n"
-                                + "            <h2 style='float:left;'>こえぽたイベントスケジュールブラウザ</h2><div style='float:right;padding-top:20px;'><input type='button' ng-click='changeGender();' value='性別を切り替え' /> <input type='button' value='新着をクリア' ng-click='saveState();'/></div> <div style='clear:both;'><a href='http://www.koepota.jp/eventschedule/'>本家</a></div>\n"
-                                + "            <table class='table table-hover'>\n"
-                                + "                <thead>\n"
-                                + "                    <tr>\n"
-                                + "                        <th>No</th>\n"
-                                + "                        <th>氏名</th>\n"
-                                + "                        <th>件数1</th>\n"
-                                + "                        <th>件数2</th>\n"
-                                + "                        <th class='ev'>直近のイベント</th>\n"
-                                + "                    </tr>\n"
-                                + "                </thead>\n"
-                                + "                <tbody>\n"
-                                + "                    <tr ng-repeat=\"seiyu in now|orderBy:[newEvent3,'-count', '-count2', sort]\" ng-class='{newEvent:newEvent(seiyu)}'>\n"
-                                + "                        <td class='no'>{{$index + 1}}</td>\n"
-                                + "                        <td ng-click='modalOpen(seiyu)' class='name'>{{seiyu.name}}</td>\n"
-                                + "                        <td class='count'>{{seiyu.count}}</td>\n"
-                                + "                        <td class='count'>{{seiyu.count2}}</td>\n"
-                                + "                        <td class='ev'><a href='http://www.koepota.jp/eventschedule/{{seiyu.eventids[0].substr(0, 4)}}/{{seiyu.eventids[0].substr(4, 2)}}/{{seiyu.eventids[0].substr(6, 2)}}/{{seiyu.eventids[0]}}.html' target='_blank'>{{events[seiyu.eventids[0]].b}}</a></td>\n"
-                                + "                    </tr>\n"
-                                + "                </tbody>\n"
-                                + "            </table>\n"
-                                + "        </div>\n"
-                                + "    </body>\n"
-                                + "</html>";
+                                exchange.getIn().setBody("var seiyu_obj=" + json);
                             }
-                        });
-                from("file:inbox?noop=true").process(new Processor(){
-
-                    @Override
-                    public void process(Exchange exchange) throws Exception {
-                        test = exchange.getIn().getBody(String.class);
-                    }
-                });
-                from("jetty:http://0.0.0.0:" + env + "/test").process(new Processor() {
-                    @Override
-                    public void process(Exchange exchange) throws Exception {
-                        exchange.getIn().setBody(test);
-                    }
-                });
+                        }).setHeader(Exchange.FILE_NAME, constant("seiyu.js")).to("file:resource");
                 from("jetty:http://0.0.0.0:" + env + "/json").process(new Processor() {
                     @Override
                     public void process(Exchange exchange) throws Exception {
@@ -335,6 +173,7 @@ public class Main {
                     @Override
                     public void process(Exchange exchange) throws Exception {
                         regex();
+                        regex2();
                     }
                 });
             }

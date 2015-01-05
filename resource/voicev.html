@@ -21,7 +21,7 @@
         <script src='http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js'></script>
         <script src='https://code.jquery.com/jquery-2.1.1.min.js'></script>
         <script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
-        <script src='seiyu.js'></script>
+        <script src="/resource/seiyu.js"></script>
         <script>
             angular.module('MyApp', ['ui.bootstrap'])
                     .controller('MyController', ['$scope', '$modal', function($scope, $modal) {
@@ -34,6 +34,7 @@
                             }
                             $scope.now = seiyu_obj.female_seiyu;
                             $scope.gender = 'female';
+                            $scope.new_state = seiyu_obj.eventids;
                             $scope.events = seiyu_obj.event;
                             $scope.sort = function(a) {
                                 return -a.count;
@@ -55,7 +56,6 @@
                                 } else {
                                     $scope.now = seiyu_obj.female_seiyu;
                                     $scope.gender = 'female';
-
                                 }
                             };
                             $scope.saveState = function() {
@@ -65,7 +65,6 @@
                                         if (confirm('現在の新着表示がクリアされます。よろしいですか？')) {
                                             window.localStorage.setItem('saveState', JSON.stringify($scope.new_state));
                                             $scope.old_state = $scope.new_state;
-                                            alert('記憶しました。');
                                         }
                                     } else {
                                         if (confirm('ブラウザに状態を記憶することで、次回更新時、新着イベントを強調表示できます。')) {
@@ -98,7 +97,8 @@
                                 } else {
                                     return true;
                                 }
-                            };
+                            }
+                            ;
                             $scope.newEvent3 = function(seiyu) {
                                 if (!window.localStorage) {
                                     return '1';
@@ -110,11 +110,12 @@
                                     }
                                 }
                                 return '1';
-                            };
-                        }]);
+                            }
+                            ;
+                        }
+                    ]);
             var ModalInstanceCtrl = function($scope, $modalInstance) {
-            };
-        </script>
+            };</script>
         <script  type='text/ng-template' id='myModal'>
             <style>
             .date{width:80px;}
@@ -146,7 +147,7 @@
 
     <body ng-controller='MyController'>
         <div class='container'>
-            <h2 style='float:left;'>こえぽたイベントスケジュールブラウザ</h2><div style='float:right;padding-top:20px;'><input type='button' ng-click='changeGender();' value='性別を切り替え' /> <input type='button' value='ブラウザに記憶' ng-click='saveState();'/></div> <div style='clear:both;'><a href='http://www.koepota.jp/eventschedule/'>本家</a></div>
+            <h2 style='float:left;'>こえぽたイベントスケジュールブラウザ</h2><div style='float:right;padding-top:20px;'><input type='button' ng-click='changeGender();' value='性別を切り替え' /> <input type='button' value='新着をクリア' ng-click='saveState();'/></div> <div style='clear:both;'><a href='http://www.koepota.jp/eventschedule/'>本家</a></div>
             <table class='table table-hover'>
                 <thead>
                     <tr>
@@ -158,7 +159,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="seiyu in now|orderBy:[newEvent3,'-count', '-count2', sort]" ng-class="{newEvent:newEvent(seiyu)}">
+                    <tr ng-repeat="seiyu in now|orderBy:[newEvent3, '-count', '-count2', sort]" ng-class='{newEvent:newEvent(seiyu)}'>
                         <td class='no'>{{$index + 1}}</td>
                         <td ng-click='modalOpen(seiyu)' class='name'>{{seiyu.name}}</td>
                         <td class='count'>{{seiyu.count}}</td>
