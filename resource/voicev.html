@@ -25,6 +25,9 @@
         <script>
             angular.module('MyApp', ['ui.bootstrap'])
                     .controller('MyController', ['$scope', '$modal', function($scope, $modal) {
+                            if (!seiyu_obj) {
+                                document.location.reload();
+                            }
                             $scope.new_state = seiyu_obj.eventids;
                             if (window.localStorage) {
                                 if (!window.localStorage.getItem('saveState')) {
