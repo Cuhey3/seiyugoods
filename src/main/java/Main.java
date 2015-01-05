@@ -22,7 +22,6 @@ public class Main {
 
     public static String regex = null;
     public static String regex2 = null;
-    public static String html = "<script>document.write('now loading...');setTimeout(function(){document.location.reload();},5000)</script>";
     public static String json = "{{}}";
     public static String test = "{{}}";
     public static LinkedHashMap<String, String> resource = new LinkedHashMap<>();
@@ -38,7 +37,7 @@ public class Main {
                 from("jetty:http://0.0.0.0:" + env + "/resource/?matchOnUriPrefix=true").process(new Processor() {
                     @Override
                     public void process(Exchange exchange) throws Exception {
-                        exchange.getIn().setBody(resource.get(exchange.getIn().getHeader("CamelHttpPath", String.class)));
+                        exchange.getOut().setBody(resource.get(exchange.getIn().getHeader("CamelHttpPath", String.class)));
                     }
 
                 });
@@ -55,7 +54,11 @@ public class Main {
 
                     @Override
                     public void process(Exchange exchange) throws Exception {
-                        exchange.getOut().setBody(resource.get("voicev.html"));
+                        if (resource.get("voicev.html") == null) {
+                            exchange.getOut().setBody("<script>document.write('now loading...');setTimeout(function(){document.location.reload();},5000)</script>");
+                        } else {
+                            exchange.getOut().setBody(resource.get("voicev.html"));
+                        }
                     }
                 });
                 from("timer:foo?period=10m")
