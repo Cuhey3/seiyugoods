@@ -16,15 +16,18 @@
         <script>
             angular.module('MyApp', ['ui.bootstrap'])
                     .controller('MyController', ['$scope', '$modal', function($scope, $modal) {
-                            if (!seiyu_obj) {
-                                document.location.reload();
+                            if (window.localStorage) {
+                                $scope.storageStandBy = true;
+                            } else {
+                                $scope.storageStandBy = false;
                             }
                             $scope.new_state = seiyu_obj.eventids;
-                            if (window.localStorage) {
-                                if (!window.localStorage.getItem('saveState')) {
+                            if ($scope.storageStandBy) {
+                                var ls = window.localStorage.getItem('saveState');
+                                if (!ls) {
                                     window.localStorage.setItem('saveState', JSON.stringify($scope.new_state));
                                 }
-                                $scope.old_state = JSON.parse(window.localStorage.getItem('saveState'));
+                                $scope.old_state = JSON.parse(ls);
                             }
                             $scope.now = seiyu_obj.female_seiyu;
                             $scope.gender = 'female';
@@ -53,7 +56,7 @@
                                 }
                             };
                             $scope.saveState = function() {
-                                if (window.localStorage) {
+                                if ($scope.storageStandBy) {
                                     var s = window.localStorage.getItem('saveState');
                                     if (s) {
                                         if (confirm('現在の新着表示がクリアされます。よろしいですか？')) {
@@ -71,7 +74,7 @@
                                 }
                             };
                             $scope.newEvent = function(seiyu) {
-                                if (!window.localStorage) {
+                                if (!$scope.storageStandBy) {
                                     return false;
                                 }
                                 for (var i = 0; i < seiyu.eventids.length; i++) {
@@ -83,7 +86,7 @@
                                 return false;
                             };
                             $scope.newEvent2 = function(name, id) {
-                                if (!window.localStorage) {
+                                if (!$scope.storageStandBy) {
                                     return false;
                                 }
                                 if ($scope.old_state[id] && $scope.old_state[id][name]) {
@@ -94,7 +97,7 @@
                             }
                             ;
                             $scope.newEvent3 = function(seiyu) {
-                                if (!window.localStorage) {
+                                if (!$scope.storageStandBy) {
                                     return '1';
                                 }
                                 for (var i = 0; i < seiyu.eventids.length; i++) {
