@@ -23,7 +23,6 @@ public class Main {
     public static String regex = null;
     public static String regex2 = null;
     public static String json = "{{}}";
-    public static String test = "{{}}";
     public static LinkedHashMap<String, String> resource = new LinkedHashMap<>();
 
     public static void main(String[] args) throws Exception {
@@ -54,7 +53,7 @@ public class Main {
 
                     @Override
                     public void process(Exchange exchange) throws Exception {
-                        if (resource.get("voicev.html") == null||resource.get("seiyu.js") == null) {
+                        if (resource.get("voicev.html") == null || resource.get("seiyu.js") == null) {
                             exchange.getOut().setBody("<script>document.write('now loading...');setTimeout(function(){document.location.reload();},5000)</script>");
                         } else {
                             exchange.getOut().setBody(resource.get("voicev.html"));
@@ -165,19 +164,11 @@ public class Main {
                                 exchange.getIn().setBody("var seiyu_obj=" + json);
                                 resource.put("seiyu.js", "var seiyu_obj=" + json);
                             }
-                        }).setHeader(Exchange.FILE_NAME, constant("seiyu.js")).to("file:resource");
+                        });
                 from("jetty:http://0.0.0.0:" + env + "/json").process(new Processor() {
                     @Override
                     public void process(Exchange exchange) throws Exception {
                         exchange.getIn().setBody(json);
-                    }
-                });
-                from("timer:foo?period=24h").process(new Processor() {
-
-                    @Override
-                    public void process(Exchange exchange) throws Exception {
-                        regex();
-                        regex2();
                     }
                 });
             }
