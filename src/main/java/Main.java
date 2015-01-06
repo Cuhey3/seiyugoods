@@ -54,7 +54,7 @@ public class Main {
 
                     @Override
                     public void process(Exchange exchange) throws Exception {
-                        if (resource.get("voicev.html") == null) {
+                        if (resource.get("voicev.html") == null||resource.get("seiyu.js") == null) {
                             exchange.getOut().setBody("<script>document.write('now loading...');setTimeout(function(){document.location.reload();},5000)</script>");
                         } else {
                             exchange.getOut().setBody(resource.get("voicev.html"));
