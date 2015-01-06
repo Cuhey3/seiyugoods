@@ -154,6 +154,8 @@ public class Main {
                                 result.put("male_seiyu", male);
                                 result.put("eventids", eventIds);
                                 result.put("event", events);
+                                result.put("unique_all", getUniqueSize(events));
+                                result.put("stage_all", eventIds.size());
                                 exchange.getOut().setBody(result);
                             }
                         }).marshal().json(JsonLibrary.Jackson).process(new Processor() {
@@ -303,6 +305,20 @@ public class Main {
         LinkedHashSet<String> titles = new LinkedHashSet<>();
         int count = 0;
         for (String s : set) {
+            String title = events.get(s).get("b");
+            s = s.replaceFirst("\\d+$", "");
+            if (newSet.add(s) & titles.add(title)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static int getUniqueSize(TreeMap<String, LinkedHashMap<String, String>> events) {
+        LinkedHashSet<String> newSet = new LinkedHashSet<>();
+        LinkedHashSet<String> titles = new LinkedHashSet<>();
+        int count = 0;
+        for (String s : events.keySet()) {
             String title = events.get(s).get("b");
             s = s.replaceFirst("\\d+$", "");
             if (newSet.add(s) & titles.add(title)) {
