@@ -26,6 +26,7 @@
                                 var ls = window.localStorage.getItem('saveState');
                                 if (!ls) {
                                     window.localStorage.setItem('saveState', JSON.stringify($scope.new_state));
+                                    ls = window.localStorage.getItem('saveState');
                                 }
                                 $scope.old_state = JSON.parse(ls);
                             }
