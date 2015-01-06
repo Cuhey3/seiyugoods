@@ -7,15 +7,6 @@
         <meta name='description' content=''>
         <meta name='viewport' content='width=device-width, initial-scale=1'>
         <link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
-        <style>
-            .app-modal-window .modal-dialog{width:1000px;}
-            .no{width:40px;text-align:center;}
-            .name{cursor:pointer;width:70px;}
-            .count{width:40px;text-align:center;}
-            .ev{width:600px;}
-            .name:hover{color:blue;font-weight:bold;}
-            .newEvent{color:red;}
-        </style>
         <script src='http://code.jquery.com/jquery-1.11.0.min.js'></script>
         <script src='https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js'></script>
         <script src='http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js'></script>
@@ -119,45 +110,25 @@
                     ]);
             var ModalInstanceCtrl = function($scope, $modalInstance) {
             };</script>
-        <script  type='text/ng-template' id='myModal'>
-            <style>
-            .date{width:80px;}
-            .evname{width:380px;}
-            .place{width:120px;}
-            .member{width:220px;}
+        <style>
+            .app-modal-window .modal-dialog{width:1000px;}
+            .no{width:5%;text-align:center;}
+            .name{cursor:pointer;width:10%;}
+            .count{width:5%;text-align:center;}
+            .ev{width:75%;}
+            .name:hover{color:blue;font-weight:bold;width:10%;}
             .newEvent{color:red;}
-            </style>
-            <div class='modal-header'>
-            <h3 class='modal-title'><a href='http://ja.wikipedia.org/wiki/{{seiyu.name}}' target='_blank'>{{seiyu.name}}</a></h3>
-            {{seiyu.count}}イベント {{seiyu.count2}}ステージ
-            </div>
-            <div class='modal-body'>
-            <table class='table'>
-            <thead><tr><th>日時</th><th>イベント名</th><th>場所</th><th>出演者</th></tr></thead>
-            <tbody>
-            <tr ng-repeat='id in seiyu.eventids' ng-class='{newEvent:newEvent2(seiyu.name,id)}'>
-            <td class='date'>{{events[id].a}}</td>
-            <td class='evname'><a href='http://www.koepota.jp/eventschedule/{{id.substr(0, 4)}}/{{id.substr(4, 2)}}/{{id.substr(6, 2)}}/{{id}}.html' target='_blank'>{{events[id].b}}</a></td>
-            <td class='place'>{{events[id].c}}</td>
-            <td class='member'>{{events[id].d}}</td>
-            </tr>
-            </tbody>
-            </table>
-            </div>
-            <div class='modal-footer'></div>
-            </body>
-        </script>
-
+        </style>
     <body ng-controller='MyController'>
         <div class='container'>
             <h2 style='float:left;'>こえぽたイベントスケジュールブラウザ</h2><div style='float:right;padding-top:20px;'><input type='button' ng-click='changeGender();' value='性別を切り替え' /> <input type='button' value='新着をクリア' ng-click='saveState();'/></div> <div style='clear:both;'><a href='http://www.koepota.jp/eventschedule/'>本家</a></div>
             <table class='table table-hover'>
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>氏名</th>
-                        <th>件数1</th>
-                        <th>件数2</th>
+                        <th class='no'>No</th>
+                        <th class='name'>氏名</th>
+                        <th class='count'>件数1</th>
+                        <th class='ccount'>件数2</th>
                         <th class='ev'>直近のイベント</th>
                     </tr>
                 </thead>
@@ -172,5 +143,33 @@
                 </tbody>
             </table>
         </div>
+        <script  type='text/ng-template' id='myModal'>
+            <style>
+            .date2{width:10%;}
+            .evname2{width:35%;}
+            .place2{width:20%;}
+            .member2{width:35%;}
+            .newEvent{color:red;}
+            </style>
+            <div class='modal-header'>
+            <h3 class='modal-title'><a href='http://ja.wikipedia.org/wiki/{{seiyu.name}}' target='_blank'>{{seiyu.name}}</a></h3>
+            {{seiyu.count}}イベント {{seiyu.count2}}ステージ
+            </div>
+            <div class='modal-body'>
+            <table class='table'>
+            <thead><tr><th class='date2'>日時</th><th class='evname2'>イベント名</th><th class='place2'>場所</th><th class='member2'>出演者</th></tr></thead>
+            <tbody>
+            <tr ng-repeat='id in seiyu.eventids' ng-class='{newEvent:newEvent2(seiyu.name,id)}'>
+            <td class='date2'>{{events[id].a}}</td>
+            <td class='evname2'><a href='http://www.koepota.jp/eventschedule/{{id.substr(0, 4)}}/{{id.substr(4, 2)}}/{{id.substr(6, 2)}}/{{id}}.html' target='_blank'>{{events[id].b}}</a></td>
+            <td class='place2'>{{events[id].c}}</td>
+            <td class='member2'>{{events[id].d}}</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <div class='modal-footer'></div>
+            </body>
+        </script>
     </body>
 </html>
