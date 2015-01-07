@@ -38,7 +38,7 @@
                                 return -a.count;
                             };
                             $scope.sort = function(a) {
-                                return $scope.events[a.eventids[0]].b;
+                                return $scope.events[$scope.displayedEventId(a)].b;
                             };
                             $scope.modalOpen = function(seiyu) {
                                 $scope.seiyu = seiyu;
@@ -108,8 +108,23 @@
                                     }
                                 }
                                 return '1';
-                            }
-                            ;
+                            };
+                            $scope.displayedEventId = function(seiyu) {
+                                if (!$scope.storageStandBy) {
+                                    return seiyu.eventids[0];
+                                }
+                                for (var i = 0; i < seiyu.eventids.length; i++) {
+                                    if ($scope.old_state[seiyu.eventids[i]] && $scope.old_state[seiyu.eventids[i]][seiyu.name]) {
+                                    } else {
+                                        return seiyu.eventids[i];
+                                    }
+                                }
+                                return seiyu.eventids[0];
+                            };
+                            $scope.eventIdToLink = function(id) {
+//                                http://www.koepota.jp/eventschedule/{{seiyu.eventids[0].substr(0, 4)}}/{{seiyu.eventids[0].substr(4, 2)}}/{{seiyu.eventids[0].substr(6, 2)}}/{{seiyu.eventids[0]}}
+                                return "http://www.koepota.jp/eventschedule/" + id.substr(0, 4) + "/" + id.substr(4, 2) + "/" + id.substr(6, 2) + "/" + id + ".html";
+                            };
                         }
                     ]);
             var ModalInstanceCtrl = function($scope, $modalInstance) {
@@ -120,8 +135,9 @@
             .name{cursor:pointer;width:13%;}
             .count{width:5%;text-align:center;}
             .ev{width:72%;}
-            .name:hover{color:blue;font-weight:bold;width:10%;}
-            .newEvent{color:red;}
+            .name:hover{text-decoration: underline;width:13%;}
+            .newEvent{color: #cd4848;}
+            .newEvent a{font-weight:bold;}
         </style>
     <body ng-controller='MyController'>
         <div class='container'>
@@ -133,7 +149,7 @@
                         <th class='name'>氏名</th>
                         <th class='count'>件数1</th>
                         <th class='count'>件数2</th>
-                        <th class='ev'>直近のイベント</th>
+                        <th class='ev'>直近のイベント／新着イベント</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -142,18 +158,17 @@
                         <td ng-click='modalOpen(seiyu)' class='name'>{{seiyu.name}}</td>
                         <td class='count'>{{seiyu.count}}</td>
                         <td class='count'>{{seiyu.count2}}</td>
-                        <td class='ev'><a href='http://www.koepota.jp/eventschedule/{{seiyu.eventids[0].substr(0, 4)}}/{{seiyu.eventids[0].substr(4, 2)}}/{{seiyu.eventids[0].substr(6, 2)}}/{{seiyu.eventids[0]}}.html' target='_blank'>{{events[seiyu.eventids[0]].b}}</a></td>
+                        <td class='ev'><a href='{{eventIdToLink(displayedEventId(seiyu))}}' target='_blank'>{{events[displayedEventId(seiyu)].b}}</a></td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <script  type='text/ng-template' id='myModal'>
             <style>
-            .date2{width:10%;}
+            .date2{width:12%;}
             .evname2{width:35%;}
-            .place2{width:20%;}
+            .place2{width:18%;}
             .member2{width:35%;}
-            .newEvent{color:red;}
             </style>
             <div class='modal-header'>
             <h3 class='modal-title'><a href='http://ja.wikipedia.org/wiki/{{seiyu.name}}' target='_blank'>{{seiyu.name}}</a></h3>
