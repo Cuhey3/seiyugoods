@@ -27,6 +27,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         org.apache.camel.main.Main main = new org.apache.camel.main.Main();
+        main.addRouteBuilder(new WikiParse());
         main.addRouteBuilder(new RouteBuilder() {
 
             @Override

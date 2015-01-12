@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja" ng-app="MyApp" id="my">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>接点v</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js"></script>
+        <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script>
+            angular.module("MyApp", ["ui.bootstrap"])
+                    .controller("MyController", ["$scope", "$http", "$modal", function($scope, $http, $modal) {
+                            $scope.history = {};
+                            $scope.selected = {};
+                            $scope.result = [];
+                            $scope.a1data = {};
+                            $scope.addArticle = function() {
+                                var a = window.prompt("Wikipedia記事名を入れてください");
+                                if (a) {
+                                    if ($scope.history[a]) {
+                                        $scope.selected[a] = $scope.history[a];
+                                        $scope.aggregate();
+                                    } else {
+                                        $http.get("http://localhost/parse?page=" + a).success(function(data) {
+                                            $scope.history[a] = data;
+                                            $scope.selected[a] = data;
+                                            $scope.aggregate();
+                                        });
+                                    }
+                                }
+                            };
+
+                            $scope.aggregate = function() {
+                                $scope.result = [];
+                                $scope.allKeys = {};
+                                for (var key in $scope.selected) {
+                                    for (var k in $scope.selected[key].links) {
+                                        if ($scope.allKeys[k] === undefined) {
+                                            $scope.allKeys[k] = 1;
+                                        } else {
+                                            $scope.allKeys[k] = $scope.allKeys[k] + 1;
+                                        }
+                                    }
+                                }
+                                for (var key in $scope.allKeys) {
+                                    if ($scope.allKeys[key] < 2) {
+                                        delete $scope.allKeys[key];
+                                    }
+                                }
+                                for (var key in $scope.allKeys) {
+                                    var count = new Object();
+                                    count["match"] = $scope.allKeys[key];
+                                    var pt = 1;
+                                    for (var article in $scope.selected) {
+                                        if ($scope.selected[article].links[key]) {
+                                            count[article] = $scope.selected[article].links[key].t.length;
+                                            pt *= count[article] + 4;
+                                        } else if (article === key) {
+                                            count[article] = 1;
+                                            pt *= 5;
+                                            count["match"]++;
+                                        } else {
+                                            count[article] = 0;
+                                        }
+                                    }
+                                    count["pt"] = Math.ceil(pt / 25);
+                                    $scope.allKeys[key] = count;
+                                }
+                                for (var key in $scope.allKeys) {
+                                    var obj = new Object();
+                                    obj.article = key;
+                                    obj.point = $scope.allKeys[key]["pt"];
+                                    obj.match = $scope.allKeys[key]["match"];
+                                    delete $scope.allKeys[key]["pt"];
+                                    delete $scope.allKeys[key]["match"];
+                                    obj.count = $scope.allKeys[key];
+                                    $scope.result.push(obj);
+                                }
+                                $scope.result.sort(function(a, b) {
+                                    return b.point - a.point;
+                                });
+                            };
+                        }]).filter('keyCount', ['$filter', function($filter) {
+                    return function(obj) {
+                        return Object.keys(obj.links).length;
+                    };
+                }]);
+        </script>
+        <style>
+        </style>
+    </head>
+    <body ng-controller="MyController">
+        <div class="container">
+            <ul ng-repeat="(key,value) in selected">
+                <li>{{key}}　{{value|keyCount}}</li>
+            </ul>
+            <input type="button" ng-click="addArticle();" value="記事を追加"/>
+            <input type="button" ng-click="aggregate();" value="計算"/>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <td>記事名</td><td>ポイント</td><td>適合</td><td ng-repeat="(key,value) in selected">{{key}}</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="obj in result">
+                        <td>{{obj.article}}</td>
+                        <td>{{obj.point}}</td><td>{{obj.match}}</td><td ng-repeat="v in obj.count">{{v}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
