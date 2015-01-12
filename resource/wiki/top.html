@@ -25,7 +25,7 @@
                                         $scope.selected[a] = $scope.history[a];
                                         $scope.aggregate();
                                     } else {
-                                        $http.get("http://0.0.0.0/parse?page=" + a).success(function(data) {
+                                        $http.get("http://koev.herokuapp.com/parse?page=" + a).success(function(data) {
                                             $scope.history[a] = data;
                                             $scope.selected[a] = data;
                                             $scope.aggregate();
