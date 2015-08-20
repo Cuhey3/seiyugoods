@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.StreamSupport;
-import lombok.Setter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -14,13 +13,9 @@ import org.jsoup.select.Elements;
 public class WikiParse {
 
     private final String url = "https://ja.wikipedia.org/w/api.php";
-    @Setter
     private String param;
-    @Setter
     private String list;
-    @Setter
     private String map;
-    @Setter
     private String continueElement;
 
     public List<Map<String, String>> getMapList() throws IOException {
@@ -55,5 +50,21 @@ public class WikiParse {
                     return m;
                 })
                 .forEach(l::add);
+    }
+
+    public void setParam(String param) {
+        this.param = param;
+    }
+
+    public void setList(String list) {
+        this.list = list;
+    }
+
+    public void setMap(String map) {
+        this.map = map;
+    }
+
+    public void setContinueElement(String continueElement) {
+        this.continueElement = continueElement;
     }
 }
