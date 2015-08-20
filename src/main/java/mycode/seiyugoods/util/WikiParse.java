@@ -6,22 +6,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.StreamSupport;
-import lombok.Builder;
-import lombok.NonNull;
+import lombok.Setter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-@Builder
 public class WikiParse {
 
     private final String url = "https://ja.wikipedia.org/w/api.php";
-    @NonNull
+    @Setter
     private String param;
-    @NonNull
+    @Setter
     private String list;
-    @NonNull
+    @Setter
     private String map;
+    @Setter
     private String continueElement;
 
     public List<Map<String, String>> getMapList() throws IOException {
