@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import mycode.seiyugoods.source.callable.CategoryAndTemplateSeiyu;
+import mycode.seiyugoods.source.polling.SeiyuCategoryMembers;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -57,6 +59,7 @@ public class Broker extends RouteBuilder {
     }
 
     public void init() {
+        builder.from(SeiyuCategoryMembers.class).to(CategoryAndTemplateSeiyu.class);
     }
 
     public static boolean isUpToDate(Map<Class, Long> sourceMap) {

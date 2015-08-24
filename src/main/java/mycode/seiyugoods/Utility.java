@@ -1,30 +1,15 @@
 package mycode.seiyugoods;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import mycode.seiyugoods.source.polling.SeiyuCategoryMembers;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.dataformat.JsonLibrary;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.util.stream.Collectors;
 
-@Component
-public class Utility extends RouteBuilder {
+public class Utility {
 
-    @Autowired
-    SeiyuCategoryMembers members;
-
-    Set<String> seiyuAllName = new LinkedHashSet<>(Arrays.asList(new String[]{"大久保瑠美", "佐倉綾音"}));
-
-    @Override
-    public void configure() throws Exception {
-        from("direct:allSeiyuName")
-                .bean(this, "getAllSeiyuName")
-                .marshal().json(JsonLibrary.Jackson);
-    }
-
-    public Object getAllSeiyuName() {
-        return members.getCache(Broker.allSourceTimeStamp, "mapList").get();
+    public Set<String> getAttrSet(List<Map<String, String>> mapList, String attr) {
+        return mapList.stream()
+                .map((map) -> map.get(attr))
+                .collect(Collectors.toSet());
     }
 }
