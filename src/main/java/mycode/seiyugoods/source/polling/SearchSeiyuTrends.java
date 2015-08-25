@@ -31,7 +31,7 @@ public class SearchSeiyuTrends extends PollingSource {
         List<Seiyu> findSeiyuOrderbyTimestamp = repository.findSeiyuOrderbyTimestamp(new PageRequest(0, 1));
         if (!findSeiyuOrderbyTimestamp.isEmpty()) {
             Seiyu seiyu = findSeiyuOrderbyTimestamp.get(0);
-            Connection.Response get = Jsoup.connect("http://www.google.com/trends/fetchComponent?q=" + URLEncoder.encode(seiyu.getName(), "UTF-8") + "&cid=TIMESERIES_GRAPH_0&export=3").ignoreContentType(true).userAgent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36").timeout(Integer.MAX_VALUE).execute();
+            Connection.Response get = Jsoup.connect("http://www.google.com/trends/fetchComponent?q=" + URLEncoder.encode(seiyu.getName(), "UTF-8") + "&cid=TIMESERIES_GRAPH_0&export=3&hl=ja").ignoreContentType(true).userAgent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36").timeout(Integer.MAX_VALUE).execute();
             if (get.statusCode() == 200) {
                 String replaceFirst = get.body().replace("// Data table response", "").replaceFirst(".+setResponse\\((.+)\\);", "$1").replaceAll("\"v\":new Date.+?\\),", "");
                 if (!replaceFirst.contains("検索ボリュームが十分でないため結果を表示できません。")) {

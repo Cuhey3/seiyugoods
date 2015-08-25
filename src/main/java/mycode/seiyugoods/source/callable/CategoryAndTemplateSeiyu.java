@@ -32,7 +32,6 @@ public class CategoryAndTemplateSeiyu extends CallableSource {
         Set<String> attrSet1 = new Utility().getAttrSet(stip.getMapList(), "title");
         ascm.ready();
         Set<String> attrSet2 = new Utility().getAttrSet(ascm.getMapList(), "title");
-        System.out.println(attrSet2);
 
         Optional scmCache = scm.getCache(map, "mapList");
         if (scmCache.isPresent()) {
@@ -44,7 +43,7 @@ public class CategoryAndTemplateSeiyu extends CallableSource {
                     .filter((m)
                             -> !attrSet2.contains(m.get("title")))
                     .map((m) -> {
-                        System.out.println(this.getClass().getSimpleName() + " added: " + m);
+                        //System.out.println(this.getClass().getSimpleName() + " added: " + m);
                         return new HashMap<>(m);
                     })
                     .collect(Collectors.toList()));
