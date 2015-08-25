@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import mycode.seiyugoods.source.callable.CategoryAndTemplateSeiyu;
+import mycode.seiyugoods.source.callable.PersistentSeiyu;
 import mycode.seiyugoods.source.polling.SeiyuCategoryMembers;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +16,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Broker extends RouteBuilder {
-
+    
     @Autowired
     BrokerBuilder builder;
     public static final Map<Class, Long> allSourceTimeStamp = new HashMap<>();
-
+    
     @Override
     public void configure() throws Exception {
         init();
@@ -29,9 +30,9 @@ public class Broker extends RouteBuilder {
         }
         String siteTopUrl = "http://0.0.0.0:" + port;
         from("jetty:" + siteTopUrl).setBody().constant("Hello seiyugoods!");
-
+        
         from("jetty:" + siteTopUrl + "/api/seiyu_name").to("direct:allSeiyuName");
-
+        
         from("seda:broker.notate")
                 .process((exchange) -> {
                     Class body = exchange.getIn().getBody(Class.class);
@@ -55,13 +56,16 @@ public class Broker extends RouteBuilder {
                     exchange.getIn().setBody(allSourceTimeStamp);
                 })
                 .routingSlip(simple("${header.slip}"));
-
+        
     }
-
+    
     public void init() {
-        builder.from(SeiyuCategoryMembers.class).to(CategoryAndTemplateSeiyu.class);
+        builder.from(SeiyuCategoryMembers.class)
+                .to(CategoryAndTemplateSeiyu.class);
+        builder.from(CategoryAndTemplateSeiyu.class)
+                .to(PersistentSeiyu.class);
     }
-
+    
     public static boolean isUpToDate(Map<Class, Long> sourceMap) {
         return sourceMap.isEmpty() || sourceMap.keySet().stream()
                 .allMatch((key)
