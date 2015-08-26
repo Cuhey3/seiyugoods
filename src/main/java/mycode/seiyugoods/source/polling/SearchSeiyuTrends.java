@@ -59,8 +59,8 @@ public class SearchSeiyuTrends extends PollingSource {
                 repository.save(seiyu);
             }
             if (count > 300) {
-                System.out.println("resume trends search... 2h...");
-                Thread.sleep(1000 * 60 * 180);
+                System.out.println("resume trends search... 4h...");
+                Thread.sleep(1000 * 60 * 240);
                 count = 0;
             }
         }
