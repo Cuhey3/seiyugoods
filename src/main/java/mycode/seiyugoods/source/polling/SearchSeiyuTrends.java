@@ -60,7 +60,7 @@ public class SearchSeiyuTrends extends PollingSource {
             }
             if (count > 300) {
                 System.out.println("resume trends search... 2h...");
-                Thread.sleep(1000 * 60 * 120);
+                Thread.sleep(1000 * 60 * 180);
                 count = 0;
             }
         }
