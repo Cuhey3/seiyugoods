@@ -21,10 +21,8 @@ public class SearchSeiyuTrends extends PollingSource {
     @Autowired
     SeiyuRepository repository;
 
-    static int count = 0;
-
     public SearchSeiyuTrends() {
-        period = 3;
+        period = 2*60;
     }
 
     @Override
@@ -36,7 +34,6 @@ public class SearchSeiyuTrends extends PollingSource {
             Connection.Response get = Jsoup.connect("http://www.google.com/trends/fetchComponent?q=" + URLEncoder.encode(seiyu.getName(), "UTF-8") + "&cid=TIMESERIES_GRAPH_0&export=3&hl=ja").ignoreContentType(true).userAgent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36").timeout(Integer.MAX_VALUE).execute();
             System.out.println(get.statusCode());
             if (get.statusCode() == 200) {
-                count++;
                 String replaceFirst = get.body().replace("// Data table response", "").replaceFirst(".+setResponse\\((.+)\\);", "$1").replaceAll("\"v\":new Date.+?\\),", "");
                 if (!replaceFirst.contains("検索ボリュームが十分でないため結果を表示できません。")) {
                     Map readValue = mapper.readValue(replaceFirst, Map.class);
@@ -57,11 +54,6 @@ public class SearchSeiyuTrends extends PollingSource {
                 seiyu.setTrendsTimestamp(System.currentTimeMillis());
                 System.out.println(seiyu.getName() + "\t" + seiyu.getTrends());
                 repository.save(seiyu);
-            }
-            if (count > 300) {
-                System.out.println("resume trends search... 5h...");
-                Thread.sleep(1000 * 60 * 300);
-                count = 0;
             }
         }
         return new HashMap<>();
