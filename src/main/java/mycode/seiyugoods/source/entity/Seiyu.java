@@ -48,13 +48,15 @@ public class Seiyu {
     private String pageid;
     @Column(nullable = false)
     private String sortKey;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "seiyu_amiami", joinColumns = @JoinColumn(name = "seiyu_id"),
-            inverseJoinColumns = @JoinColumn(name = "amiami_title_id"))
-    private Set<AmiamiTitle> amiamiTitles;
+    @Column(nullable = true,columnDefinition="TEXT")
+    private String amiamiTitlesJson;
 
-    public void setAmiamiTitles(Set<AmiamiTitle> amiamiTitles) {
-        this.amiamiTitles = amiamiTitles;
+    public String getAmiamiTitlesJson() {
+        return amiamiTitlesJson;
+    }
+
+    public void setAmiamiTitlesJson(String amiamiTitlesJson) {
+        this.amiamiTitlesJson = amiamiTitlesJson;
     }
 
     public Long getId() {
@@ -112,9 +114,4 @@ public class Seiyu {
     public void setAmiamiTitlesTimestamp(Long amiamiTitlesTimestamp) {
         this.amiamiTitlesTimestamp = amiamiTitlesTimestamp;
     }
-
-    public Set<AmiamiTitle> getAmiamiTitles() {
-        return amiamiTitles;
-    }
-
 }

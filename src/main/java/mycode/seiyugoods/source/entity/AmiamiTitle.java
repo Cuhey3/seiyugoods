@@ -40,14 +40,6 @@ public class AmiamiTitle {
     @JoinTable(name = "amiami_wiki", joinColumns = @JoinColumn(name = "amiami_title_id"),
             inverseJoinColumns = @JoinColumn(name = "wiki_title_id"))
     private Set<WikiTitle> wikiTitles;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "seiyu_amiami", joinColumns = @JoinColumn(name = "amiami_title_id"),
-            inverseJoinColumns = @JoinColumn(name = "seiyu_id"))
-    private Set<Seiyu> cast;
-
-    public Set<Seiyu> getCast() {
-        return cast;
-    }
 
     public Long getId() {
         return id;
