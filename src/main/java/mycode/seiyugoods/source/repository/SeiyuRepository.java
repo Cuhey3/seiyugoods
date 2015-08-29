@@ -15,4 +15,9 @@ public interface SeiyuRepository extends JpaRepository<Seiyu, Long> {
 
     @Query("SELECT x FROM Seiyu x ORDER BY x.trendsTimestamp NULLS FIRST")
     List<Seiyu> findSeiyuOrderbyTimestamp(Pageable pageable);
+
+    @Query("SELECT x FROM Seiyu x where x.trends like '20%' ORDER BY x.amiamiTitlesTimestamp NULLS FIRST")
+    List<Seiyu> findSeiyuOrderbyAmiamiTitlesTimestamp(Pageable pageable);
+    @Query("SELECT x FROM Seiyu x LEFT JOIN FETCH x.amiamiTitles  WHERE x.id = ?#{[0]}")
+    List<Seiyu> findOneWithJoinFetch(Long id);
 }

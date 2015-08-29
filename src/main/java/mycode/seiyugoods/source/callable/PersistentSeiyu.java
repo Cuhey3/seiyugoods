@@ -23,7 +23,6 @@ public class PersistentSeiyu extends CallableSource {
     @Override
     public Map<String, Object> call(Map<Class, Long> map) throws Exception {
         List<Seiyu> findAll = repository.findAll();
-        System.out.println(findAll);
         Optional catsCache = cats.getCache(map, "mapList");
         if (catsCache.isPresent()) {
             updateTimeStamp(map, CategoryAndTemplateSeiyu.class);

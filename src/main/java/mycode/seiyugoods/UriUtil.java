@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import mycode.seiyugoods.source.callable.CategoryAndTemplateSeiyu;
-import mycode.seiyugoods.source.polling.SeiyuCategoryMembers;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.beans.factory.annotation.Autowired;

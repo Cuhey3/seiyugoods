@@ -22,7 +22,7 @@ public class SearchSeiyuTrends extends PollingSource {
     SeiyuRepository repository;
 
     public SearchSeiyuTrends() {
-        period = 2*60;
+        period = 3*60;
     }
 
     @Override

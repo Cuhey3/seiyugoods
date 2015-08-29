@@ -5,11 +5,17 @@
  */
 package mycode.seiyugoods.source.entity;
 
+import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -36,10 +42,20 @@ public class Seiyu {
     private String trends;
     @Column(nullable = true)
     private Long trendsTimestamp;
+    @Column(nullable = true)
+    private Long amiamiTitlesTimestamp;
     @Column(nullable = false)
     private String pageid;
     @Column(nullable = false)
     private String sortKey;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "seiyu_amiami", joinColumns = @JoinColumn(name = "seiyu_id"),
+            inverseJoinColumns = @JoinColumn(name = "amiami_title_id"))
+    private Set<AmiamiTitle> amiamiTitles;
+
+    public void setAmiamiTitles(Set<AmiamiTitle> amiamiTitles) {
+        this.amiamiTitles = amiamiTitles;
+    }
 
     public Long getId() {
         return id;
@@ -87,6 +103,18 @@ public class Seiyu {
 
     public void setSortKey(String sortKey) {
         this.sortKey = sortKey;
+    }
+
+    public Long getAmiamiTitlesTimestamp() {
+        return amiamiTitlesTimestamp;
+    }
+
+    public void setAmiamiTitlesTimestamp(Long amiamiTitlesTimestamp) {
+        this.amiamiTitlesTimestamp = amiamiTitlesTimestamp;
+    }
+
+    public Set<AmiamiTitle> getAmiamiTitles() {
+        return amiamiTitles;
     }
 
 }
