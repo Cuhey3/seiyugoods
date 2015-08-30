@@ -2,6 +2,7 @@ package mycode.seiyugoods.source.instant;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ public class WikiPageExtractInternalLink implements InstantSource {
     Pattern p = Pattern.compile("[\\(（]([^\\(（）\\)]+?)[）\\)][ 　]*$");
     Pattern p1 = Pattern.compile("<!--.+?-->", Pattern.DOTALL);
     Pattern p2 = Pattern.compile("<ref.*?(/>|>.*?</ref>)", Pattern.DOTALL);
+
     public WikiPageExtractInternalLink(String title) {
         this.title = title;
     }
@@ -37,10 +39,20 @@ public class WikiPageExtractInternalLink implements InstantSource {
         Connection.Response resp = Jsoup.connect("https://ja.wikipedia.org/w/api.php?action=parse&prop=wikitext|links&format=json&redirects=&page=" + URLEncoder.encode(title, "UTF-8")).maxBodySize(Integer.MAX_VALUE).timeout(Integer.MAX_VALUE).ignoreContentType(true).execute();
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Map> readValue = mapper.readValue(resp.body(), Map.class);
-        wikitext = ((Map<String, String>) readValue.get("parse").get("wikitext")).get("*");
+        try {
+            wikitext = ((Map<String, String>) readValue.get("parse").get("wikitext")).get("*");
+        } catch (Throwable t) {
+            wikitext = "";
+        }
         wikitext = p1.matcher(wikitext).replaceAll("");
         wikitext = p2.matcher(wikitext).replaceAll("");
-        List<Map> links = (List<Map>) readValue.get("parse").get("links");
+        List<Map> links;
+        try {
+            links = (List<Map>) readValue.get("parse").get("links");
+        } catch (Throwable t) {
+            links = new ArrayList<>();
+        }
+
         links.stream()
                 .filter((m) -> m.get("ns").equals(0) && m.containsKey("exists"))
                 .map((m) -> (String) m.get("*"))
