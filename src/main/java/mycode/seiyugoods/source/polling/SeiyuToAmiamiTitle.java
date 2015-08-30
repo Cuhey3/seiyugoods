@@ -24,7 +24,7 @@ public class SeiyuToAmiamiTitle extends PollingSource {
     WikiTitleRepository wikiTitleRepository;
 
     public SeiyuToAmiamiTitle() {
-        period = 3;
+        period = 60;
     }
 
     @Override
