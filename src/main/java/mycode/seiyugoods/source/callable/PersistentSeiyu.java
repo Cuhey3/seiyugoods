@@ -26,7 +26,6 @@ public class PersistentSeiyu extends CallableSource {
         Optional catsCache = cats.getCache(map, "mapList");
         if (catsCache.isPresent()) {
             updateTimeStamp(map, CategoryAndTemplateSeiyu.class);
-            Map<String, Object> result = new HashMap<>();
             List<Seiyu> collect = ((List<Map<String, String>>) catsCache.get()).stream()
                     .filter((m) -> findAll.stream().noneMatch((seiyu) -> seiyu.getPageid().equals(m.get("pageid"))))
                     .map((m) -> new Seiyu(null, m.get("title"), m.get("pageid"), m.get("sortkeyprefix")))
@@ -34,8 +33,6 @@ public class PersistentSeiyu extends CallableSource {
             if(!collect.isEmpty()){
                 repository.save(collect);
             }
-            result.put("findAll", repository.findAll());
-            return result;
         }
         return null;
     }

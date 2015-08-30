@@ -4,9 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import mycode.seiyugoods.source.PollingSource;
-import mycode.seiyugoods.source.entity.AmiamiTitle;
 import mycode.seiyugoods.source.entity.Seiyu;
+import mycode.seiyugoods.source.entity.WikiTitle;
 import mycode.seiyugoods.source.instant.WikiPageExtractInternalLink;
 import mycode.seiyugoods.source.repository.SeiyuRepository;
 import mycode.seiyugoods.source.repository.WikiTitleRepository;
@@ -23,7 +24,7 @@ public class SeiyuToAmiamiTitle extends PollingSource {
     WikiTitleRepository wikiTitleRepository;
 
     public SeiyuToAmiamiTitle() {
-        period = 60;
+        period = 3;
     }
 
     @Override
@@ -35,24 +36,16 @@ public class SeiyuToAmiamiTitle extends PollingSource {
             WikiPageExtractInternalLink wpeil = new WikiPageExtractInternalLink(seiyu.getName());
             wpeil.ready();
             Set<String> seiyuToWikiTitle = wpeil.getLinkTitles();
-            String amiamiTitlesJson = seiyu.getAmiamiTitlesJson();
-            if (amiamiTitlesJson == null) {
-                amiamiTitlesJson = "[]";
-            }
-            Set<String> amiamiTitles = mapper.readValue(amiamiTitlesJson, Set.class);
-            wikiTitleRepository.findAll().stream()
+            List<WikiTitle> collect = wikiTitleRepository.findAll().stream()
                     .filter((wikiTitle) -> seiyuToWikiTitle.contains(wikiTitle.getWikiTitle()))
                     .map((wikiTitle) -> wikiTitleRepository.findOneWithFetchAmiamiTitles(wikiTitle.getId()).get(0))
-                    .forEach((wikiTitle) -> {
-                        wikiTitle.getAmiamiTitles()
-                        .stream().map((amiamiTitle) -> amiamiTitle.getAmiamiTitle())
-                        .forEach(amiamiTitles::add);
-                    });
-
-            seiyu.setAmiamiTitlesJson(mapper.writeValueAsString(amiamiTitles));
+                    .collect(Collectors.toList());
+            Map<String, Set<String>> characterName = wpeil.getCharacterName(collect);
+            seiyu.setAmiamiTitlesJson(mapper.writeValueAsString(characterName.keySet()));
+            seiyu.setAmiamiCharJson(mapper.writeValueAsString(characterName));
             seiyu.setAmiamiTitlesTimestamp(System.currentTimeMillis());
-            System.out.println(seiyu.getName() + " has " + amiamiTitles.size() + " amiami titles.");
-            amiamiTitles.forEach(System.out::println);
+            System.out.println(seiyu.getName() + " has " + characterName.keySet().size() + " amiami titles.");
+            characterName.entrySet().stream().forEach(System.out::println);
             repository.save(seiyu);
         }
         return null;

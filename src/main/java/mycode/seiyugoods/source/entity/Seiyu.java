@@ -50,6 +50,16 @@ public class Seiyu {
     private String sortKey;
     @Column(nullable = true,columnDefinition="TEXT")
     private String amiamiTitlesJson;
+    @Column(nullable = true,columnDefinition="TEXT")
+    private String amiamiCharJson;
+
+    public String getAmiamiCharJson() {
+        return amiamiCharJson;
+    }
+
+    public void setAmiamiCharJson(String amiamiCharJson) {
+        this.amiamiCharJson = amiamiCharJson;
+    }
 
     public String getAmiamiTitlesJson() {
         return amiamiTitlesJson;
