@@ -18,4 +18,7 @@ public interface SeiyuRepository extends JpaRepository<Seiyu, Long> {
 
     @Query("SELECT x FROM Seiyu x ORDER BY x.amiamiTitlesTimestamp NULLS FIRST")
     List<Seiyu> findSeiyuOrderbyAmiamiTitlesTimestamp(Pageable pageable);
+
+    @Query("SELECT x FROM Seiyu x WHERE x.name = ?#{[0]}")
+    List<Seiyu> findOneByName(String name);
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import mycode.seiyugoods.source.callable.AmiamiItems;
 import mycode.seiyugoods.source.callable.AmiamiTitles;
 import mycode.seiyugoods.source.callable.CategoryAndTemplateSeiyu;
 import mycode.seiyugoods.source.callable.PersistentAmiamiTitles;
@@ -35,6 +36,7 @@ public class Broker extends RouteBuilder {
         from("jetty:" + siteTopUrl).setBody().constant("Hello seiyugoods!");
 
         from("jetty:" + siteTopUrl + "/api/seiyu_name").to("direct:allSeiyuName");
+        from("jetty:" + siteTopUrl + "/api/search").to("direct:search");
 
         from("seda:broker.notate")
                 .process((exchange) -> {
@@ -68,7 +70,8 @@ public class Broker extends RouteBuilder {
         builder.from(CategoryAndTemplateSeiyu.class)
                 .to(PersistentSeiyu.class);
         builder.from(Amiami.class)
-                .to(AmiamiTitles.class);
+                .to(AmiamiTitles.class)
+                .to(AmiamiItems.class);
         builder.from(AmiamiTitles.class)
                 .to(PersistentAmiamiTitles.class);
     }
