@@ -30,10 +30,32 @@
         <script>
             angular.module("myApp", [])
                     .controller("myController", function ($scope, $http) {
+                        $scope.search = function () {
+                            $scope.limit = 20;
+                            $http({method: "GET", url: "/api/search?name=" + $scope.seiyu_name})
+                                    .success(function (data) {
+                                        $scope.donn = data;
+                                        if (data.items) {
+                                            var len = data.items.length;
+                                            for (var i = 0; i < len; i++) {
+                                                var characters = data.character[data.items[i].orig];
+                                                for (var j = 0; j < characters.length; j++) {
+                                                    if (data.items[i].name.indexOf(characters[j]) !== -1) {
+                                                        data.items[i].character = characters[j];
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            $scope.result = data.items;
+                                        } else {
+                                            alert("この声優名は登録されていないため、検索できません。");
+                                        }
+                                    });
+                        };
                         if (document.location.hash) {
                             var re = new RegExp("^(#?/?)");
                             $scope.seiyu_name = decodeURI(document.location.hash.replace(re, ""));
-                            console.log(document.location.hash);
+                            $scope.search();
                         }
                         $scope.setSeiyuName = function (str) {
                             $scope.seiyu_name = str;
@@ -46,28 +68,6 @@
                         $scope.pluslimit = function () {
                             $scope.limit += 20;
                         };
-                        $scope.search = function () {
-                            $scope.limit = 20;
-                            $http({method: "GET", url: "/api/search?name=" + $scope.seiyu_name})
-                                    .success(function (data) {
-                                        $scope.donn = data;
-                                        if (data.items) {
-                                            var len = data.items.length;
-                                            for (var i = 0; i < len; i++) {
-                                                var characters = data.character[data.items[i].orig];
-                                                for (var j = 0; j < characters.length; j++) {
-                                                    if (data.items[i].name.contains(characters[j])) {
-                                                        data.items[i].character = characters[j];
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                            $scope.result = data.items;
-                                        } else {
-                                            alert("この声優名は登録されていないため、検索できません。");
-                                        }
-                                    });
-                        }
                     });
         </script>
     </body>
