@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <title>声優名でグッズ検索ver.2</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js" ></script>
+    </head>
+    <body ng-app="myApp">
+        <div ng-controller="myController">
+            <div class="container">
+                <h3>声優名でグッズ検索</h3>
+                <input type="text" ng-model="seiyu_name" />
+                <input type="button" ng-click="search()" value="検索"/>
+                <div ng-show="seiyu_name">候補:<span ng-repeat="seiyu in seiyu_names|filter:seiyu_name|limitTo:20"> <a ng-href="/#/{{seiyu.name}}" ng-click="setSeiyuName(seiyu.name);
+                                search();">{{seiyu.name}}</a></span></div>
+                <table class="table">
+                    <thead>
+                        <tr><th>画像</th><th>商品名</th><th>発売時期</th><th>価格</th><th>原作名</th><th>キャラクター名</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="obj in result|orderBy:['character', 'orig']|limitTo:limit">
+                            <th><a href="{{obj.link}}" target='_blank'><img ng-src="{{obj.img}}" /></a></th><th>{{obj.name}}</th><th style="min-width:80px;">{{obj.release}}</th><th>{{obj.price}}</th><th>{{obj.orig}}</th><th style="min-width:120px;">{{obj.character}}</th>
+                        </tr>
+                    </tbody>
+                </table>
+                <input class="form-control" type="button" ng-if="limit < result.length" ng-click="pluslimit()" value="次の20件を表示" style="margin-bottom:50px;"/>
+            </div>
+        </div>
+        <script>
+            angular.module("myApp", [])
+                    .controller("myController", function ($scope, $http) {
+                        if (document.location.hash) {
+                            var re = new RegExp("^(#?/?)");
+                            $scope.seiyu_name = decodeURI(document.location.hash.replace(re, ""));
+                            console.log(document.location.hash);
+                        }
+                        $scope.setSeiyuName = function (str) {
+                            $scope.seiyu_name = str;
+                        }
+                        $http({method: "GET", url: "/api/seiyu_name"})
+                                .success(function (data) {
+                                    $scope.seiyu_names = data;
+                                });
+                        $scope.limit = 20;
+                        $scope.pluslimit = function () {
+                            $scope.limit += 20;
+                        };
+                        $scope.search = function () {
+                            $scope.limit = 20;
+                            $http({method: "GET", url: "/api/search?name=" + $scope.seiyu_name})
+                                    .success(function (data) {
+                                        $scope.donn = data;
+                                        if (data.items) {
+                                            var len = data.items.length;
+                                            for (var i = 0; i < len; i++) {
+                                                var characters = data.character[data.items[i].orig];
+                                                for (var j = 0; j < characters.length; j++) {
+                                                    if (data.items[i].name.contains(characters[j])) {
+                                                        data.items[i].character = characters[j];
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            $scope.result = data.items;
+                                        } else {
+                                            alert("この声優名は登録されていないため、検索できません。");
+                                        }
+                                    });
+                        }
+                    });
+        </script>
+    </body>
+</html>

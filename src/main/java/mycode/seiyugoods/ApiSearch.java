@@ -1,4 +1,4 @@
-package mycode.seiyugoods.source;
+package mycode.seiyugoods;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import mycode.seiyugoods.Broker;
 import mycode.seiyugoods.source.callable.AmiamiItems;
 import mycode.seiyugoods.source.entity.Seiyu;
 import mycode.seiyugoods.source.repository.SeiyuRepository;

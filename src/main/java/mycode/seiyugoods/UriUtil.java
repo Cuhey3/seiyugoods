@@ -1,7 +1,6 @@
 package mycode.seiyugoods;
 
 import java.io.IOException;
-import mycode.seiyugoods.source.ApiSearch;
 import mycode.seiyugoods.source.polling.ApiSeiyuName;
 import org.apache.camel.Header;
 import org.apache.camel.builder.RouteBuilder;
